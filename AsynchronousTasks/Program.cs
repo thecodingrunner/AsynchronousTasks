@@ -37,26 +37,29 @@ namespace AsynchronousTasks
                     await Task.Delay(rand.Next(1000, 10000));
                     Console.WriteLine("...World!");
                 });
-             //  await hello;
-             //   await world;
+
+                //await hello;
+                //await world;
+
                 try
                 {
-                   //    await Task.WhenAny(Task.WhenAll(PrintHelloWorld()));
-                  await Task.WhenAll([hello, world]).WaitAsync(token);
+                    //    await Task.WhenAny(Task.WhenAll(PrintHelloWorld()));
+                    await Task.WhenAll([hello, world]).WaitAsync(token);
 
                     var combinedTask = Task.WhenAll([hello, world]);
-                     await combinedTask;
+                    await combinedTask;
                 }
                 catch (TaskCanceledException)
                 {
                     Console.WriteLine("took too long");
-
                 }
 
                 stopwatch.Stop();
                 Console.WriteLine($"This code executed in {stopwatch.ElapsedMilliseconds}ms");
 
             }
+
+            //await PrintHelloWorld();
 
             static async Task BigNums()
             {
@@ -89,23 +92,18 @@ namespace AsynchronousTasks
 
                 foreach (string word in storyWords)
                 {
-                    Task PrintWord = Task.Run(async () =>
-                    {
-                        await Task.Delay(1000);
-                        Console.WriteLine(word);
-                    });
-                    await PrintWord;
+                    await Task.Delay(1000).ContinueWith(Result => Console.WriteLine(word));
+                    //Task PrintWord = Task.Run(async () =>
+                    //{
+                    //    await Task.Delay(1000);
+                    //    Console.WriteLine(word);
+                    //});
+                    //await PrintWord;
                 }
             }
 
-         //   await Task.WhenAll(BigNums(),PrintStory());
+            //await Task.WhenAll(BigNums(),PrintStory());
 
-
-
-            CancellationTokenSource cts = new CancellationTokenSource();
-            CancellationToken token = cts.Token;
-            cts.CancelAfter(5000);
-            token.ThrowIfCancellationRequested();
 
             static async Task<string> decryptMessage(string fileContents)
             {
@@ -116,10 +114,12 @@ namespace AsynchronousTasks
                     if (Char.IsPunctuation(c) || c == ' ')
                     {
                         decryptedMessage += c;
-                    } else if (c + 1 < 123)
+                    }
+                    else if (c + 1 < 123)
                     {
                         decryptedMessage += (char)(c + 1);
-                    } else
+                    }
+                    else
                     {
                         decryptedMessage += (char)(97);
                     }
@@ -138,30 +138,46 @@ namespace AsynchronousTasks
                 AsyncFileManager.WriteFile("DecryptedMessage.txt", decryptedMessage);
             }
 
-           
-            static async Task ReadDecryptWriteAll(string filePath)
+            static async Task DecryptionTask()
             {
-                string fileContents = await ReadFile(filePath);
-                string decryptedMessage = await decryptMessage(fileContents);
-                await WriteFile(decryptedMessage);
+                CancellationTokenSource cts = new CancellationTokenSource();
+                CancellationToken token = cts.Token;
+                cts.CancelAfter(1000);
+                token.ThrowIfCancellationRequested();
+
+                static async Task ReadDecryptWriteAll(string filePath)
+                {
+                    try
+                    {
+                        string fileContents = await ReadFile(filePath);
+                        string decryptedMessage = await decryptMessage(fileContents);
+                        await WriteFile(decryptedMessage);
+                        Console.WriteLine(filePath + "Decripted and Written successfully");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    } 
+                };
+
+                try
+                {
+                    var stopwatch = Stopwatch.StartNew();
+                    await Task.WhenAll([
+                        ReadDecryptWriteAll("ReallySuperSecretTextFile"),
+                        ReadDecryptWriteAll("SuperSecretFile.txt"),
+                        ReadDecryptWriteAll("SuperTopSecretTextFile.txt")
+                    ]).WaitAsync(token);
+                    Console.WriteLine($"This code executed in {stopwatch.ElapsedMilliseconds}ms");
+                    stopwatch.Stop();
+                }
+                catch (OperationCanceledException)
+                {
+                    Console.WriteLine("took too long");
+                }
             }
-/*
-            string fileContents = await ReadFile("SuperSecretFile.txt");
-            string fileContents2 = await ReadFile("ReallySuperSecretTextFile.txt");
-            string fileContents3 = await ReadFile("SuperTopSecretTextFile.txt");
-            string decryptedMessage = await decryptMessage(fileContents);
-            string decryptedMessage2 = await decryptMessage(fileContents2);
-            string decryptedMessage3 = await decryptMessage(fileContents3);
 
-
-            await WriteFile(decryptedMessage);
-            await WriteFile(decryptedMessage2);
-            await WriteFile(decryptedMessage3);
-*/
-
-           await Task.WhenAll([ReadDecryptWriteAll("ReallySuperSecretTextFile.txt"), ReadDecryptWriteAll("SuperSecretFile.txt"), ReadDecryptWriteAll("SuperTopSecretTextFile.txt"),]);
-
-            
+            await DecryptionTask();
 
         }
     } 

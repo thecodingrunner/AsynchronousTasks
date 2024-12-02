@@ -10,20 +10,34 @@ namespace AsynchronousTasks
     {
         public static string ReadFile(string path)
         {
-            string contents = File.ReadAllTextAsync(path).Result;
-            return contents;
+            if (path.EndsWith(".txt"))
+            {
+                string contents = File.ReadAllTextAsync(path).Result;
+                return contents;
+            } 
+            else
+            {
+                throw new ArgumentException(message: "The file provided for reading is not a text file");
+            }
         }
 
-        public async static void WriteFile(string path, string contents) 
+        public async static void WriteFile(string path, string contents)
         {
-            if (!File.Exists(path))
+            if (path.EndsWith(".txt"))
             {
-               await  File.WriteAllTextAsync(path, contents + Environment.NewLine);
+                if (!File.Exists(path))
+                {
+                    await File.WriteAllTextAsync(path, contents + Environment.NewLine);
+                }
+                else
+                {
+                    await File.AppendAllTextAsync(path, contents + Environment.NewLine);
+                }
             }
             else
             {
-                await File.AppendAllTextAsync(path, contents + Environment.NewLine);
+                throw new ArgumentException(message: "The file provided for writing is not a text file");
             }
-            }
+        }
     }
 }
