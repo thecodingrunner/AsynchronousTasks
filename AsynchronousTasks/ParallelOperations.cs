@@ -15,7 +15,7 @@ namespace AsynchronousTasks
         {
             var random = new Random();
             Console.WriteLine($"Processing number: {number}");
-            number += 100;
+         //   number += 100;
             Task.Delay(random.Next(3000, 10000)).Wait();
             Console.WriteLine($"{number} has been processed");
         }
