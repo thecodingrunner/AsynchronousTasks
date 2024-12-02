@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -14,7 +16,8 @@ namespace AsynchronousTasks
             //Console.WriteLine("Hello, World!");
 
             //    await PrintHelloWorld();
-            await BigNums();
+
+
             static async Task PrintHelloWorld()
             {
                 var rand = new Random();
@@ -55,40 +58,82 @@ namespace AsynchronousTasks
 
             }
 
-
-
             static async Task BigNums()
             {
                 string data = "85671 34262 92143 50984 24515 68356 77247 12348 56789 98760";
                 List<BigInteger> bigInteger = new List<BigInteger>();
                 string[] arr = data.Split(" ");
+
                 foreach (string s in arr)
                 {
                     bigInteger.Add(BigInteger.Parse(s));
                     Console.WriteLine(s);
                 }
               
-            foreach (var num in bigInteger)
-            {
+                foreach (var num in bigInteger)
+                {
                     Task<BigInteger> CalcFactorial = Task.Run(async () =>
                     {
                         return Exercises.CalculateFactorial(num);
                     });
 
-                 //   Task CalcFactorial = Task.Run(async () =>
-                //    {
-
-                 //       Exercises.CalculateFactorial(num);
-
-                 //   });
                     await CalcFactorial.ContinueWith(ante => Console.WriteLine(ante.Result));
-            }
-           
-
-            //
-                
+                }
             }
 
+            static async Task PrintStory()
+            {
+                string story = "Mary had a little lamb, its fleece was white as snow.";
+
+                List<string> storyWords = story.Split(" ").ToList();
+
+                foreach (string word in storyWords)
+                {
+                    Task PrintWord = Task.Run(async () =>
+                    {
+                        await Task.Delay(1000);
+                        Console.WriteLine(word);
+                    });
+                    await PrintWord;
+                }
+            }
+
+            //await Task.WhenAll(BigNums(),PrintStory());
+
+            static async Task<string> decryptMessage(string fileContents)
+            {
+                string decryptedMessage = "";
+                string messageToDecrypt = fileContents.ToLower();
+                foreach (char c in fileContents)
+                {
+                    if (Char.IsPunctuation(c) || c == ' ')
+                    {
+                        decryptedMessage += c;
+                    } else if (c + 1 < 123)
+                    {
+                        decryptedMessage += (char)(c + 1);
+                    } else
+                    {
+                        decryptedMessage += (char)(97);
+                    }
+                }
+                return decryptedMessage;
+            }
+
+            static async Task<string> ReadFile()
+            {
+                string fileContents = AsyncFileManager.ReadFile("SuperSecretFile.txt");
+                return fileContents;
+            }
+
+            static async Task WriteFile(string decryptedMessage)
+            {
+                AsyncFileManager.WriteFile("DecryptedMessage.txt", decryptedMessage);
+            }
+
+            string fileContents = await ReadFile();
+            string decryptedMessage = await decryptMessage(fileContents);
+            WriteFile(decryptedMessage);
 
         }
     } 
