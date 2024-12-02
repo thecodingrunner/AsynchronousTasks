@@ -15,7 +15,7 @@ namespace AsynchronousTasks
             //Thread.Sleep(2000);
             //Console.WriteLine("Hello, World!");
 
-            //    await PrintHelloWorld();
+           //  await PrintHelloWorld();
 
             static async Task PrintHelloWorld()
             {
@@ -37,14 +37,15 @@ namespace AsynchronousTasks
                     await Task.Delay(rand.Next(1000, 10000));
                     Console.WriteLine("...World!");
                 });
-
+             //  await hello;
+             //   await world;
                 try
                 {
-                    //    await Task.WhenAny(Task.WhenAll(PrintHelloWorld()));
-                    await Task.WhenAll([hello, world]).WaitAsync(token);
+                   //    await Task.WhenAny(Task.WhenAll(PrintHelloWorld()));
+                  await Task.WhenAll([hello, world]).WaitAsync(token);
 
-                    // var combinedTask = Task.WhenAll([hello, world]);
-                    // await combinedTask;
+                    var combinedTask = Task.WhenAll([hello, world]);
+                     await combinedTask;
                 }
                 catch (TaskCanceledException)
                 {
@@ -66,7 +67,7 @@ namespace AsynchronousTasks
                 foreach (string s in arr)
                 {
                     bigInteger.Add(BigInteger.Parse(s));
-                    Console.WriteLine(s);
+                   // Console.WriteLine(s);
                 }
               
                 foreach (var num in bigInteger)
@@ -97,7 +98,7 @@ namespace AsynchronousTasks
                 }
             }
 
-            //await Task.WhenAll(BigNums(),PrintStory());
+         //   await Task.WhenAll(BigNums(),PrintStory());
 
 
 
@@ -126,9 +127,9 @@ namespace AsynchronousTasks
                 return decryptedMessage;
             }
 
-            static async Task<string> ReadFile()
+            static async Task<string> ReadFile(string filepath)
             {
-                string fileContents = AsyncFileManager.ReadFile("SuperSecretFile.txt");
+                string fileContents = AsyncFileManager.ReadFile(filepath);
                 return fileContents;
             }
 
@@ -137,9 +138,30 @@ namespace AsynchronousTasks
                 AsyncFileManager.WriteFile("DecryptedMessage.txt", decryptedMessage);
             }
 
-            string fileContents = await ReadFile();
+           
+            static async Task ReadDecryptWriteAll(string filePath)
+            {
+                string fileContents = await ReadFile(filePath);
+                string decryptedMessage = await decryptMessage(fileContents);
+                await WriteFile(decryptedMessage);
+            }
+/*
+            string fileContents = await ReadFile("SuperSecretFile.txt");
+            string fileContents2 = await ReadFile("ReallySuperSecretTextFile.txt");
+            string fileContents3 = await ReadFile("SuperTopSecretTextFile.txt");
             string decryptedMessage = await decryptMessage(fileContents);
-            WriteFile(decryptedMessage);
+            string decryptedMessage2 = await decryptMessage(fileContents2);
+            string decryptedMessage3 = await decryptMessage(fileContents3);
+
+
+            await WriteFile(decryptedMessage);
+            await WriteFile(decryptedMessage2);
+            await WriteFile(decryptedMessage3);
+*/
+
+           await Task.WhenAll([ReadDecryptWriteAll("ReallySuperSecretTextFile.txt"), ReadDecryptWriteAll("SuperSecretFile.txt"), ReadDecryptWriteAll("SuperTopSecretTextFile.txt"),]);
+
+            
 
         }
     } 
