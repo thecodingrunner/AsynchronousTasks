@@ -17,7 +17,6 @@ namespace AsynchronousTasks
 
             //    await PrintHelloWorld();
 
-
             static async Task PrintHelloWorld()
             {
                 var rand = new Random();
@@ -99,6 +98,13 @@ namespace AsynchronousTasks
             }
 
             //await Task.WhenAll(BigNums(),PrintStory());
+
+
+
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+            cts.CancelAfter(5000);
+            token.ThrowIfCancellationRequested();
 
             static async Task<string> decryptMessage(string fileContents)
             {
