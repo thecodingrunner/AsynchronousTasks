@@ -15,7 +15,11 @@ namespace AsynchronousTasks
             //Thread.Sleep(2000);
             //Console.WriteLine("Hello, World!");
 
-           //  await PrintHelloWorld();
+            //  await PrintHelloWorld();
+            List<int> numbers = Enumerable.Range(1, 100).ToList();
+            ParallelOperations.RunParallelTasksAsync(numbers);
+
+
 
             static async Task PrintHelloWorld()
             {
