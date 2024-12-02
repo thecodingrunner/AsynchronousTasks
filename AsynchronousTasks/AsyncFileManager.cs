@@ -16,7 +16,14 @@ namespace AsynchronousTasks
 
         public async static void WriteFile(string path, string contents) 
         {
-            await File.WriteAllTextAsync(path, contents);
-        }
+            if (!File.Exists(path))
+            {
+               await  File.WriteAllTextAsync(path, contents + Environment.NewLine);
+            }
+            else
+            {
+                await File.AppendAllTextAsync(path, contents + Environment.NewLine);
+            }
+            }
     }
 }
